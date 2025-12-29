@@ -26,48 +26,11 @@ Pour exécuter le programme, on regarde le code situé à l'indice courant. On e
 
 On peut regrouper les instructions en plusieurs ensembles. On n'implémentera qu'un sous-ensemble des instructions de la machine virtuelle, uniquement celles présentées ici. On pourra également se référer à [ce document][caml_instructions] qui date un peu mais reste pertinent pour décrire les instructions.
 
-# Structure du projet
-
-```shell
-OCaml_VM/
-├── README.m
-├── resources/
-│ ├── bytecode.tgz
-│ ├── caml-instructions.pdf
-│ ├── instructions.md
-│ └── projet_prim_11_version_markdown.md
-├── src/
-│ ├── header/
-│ │ └── stack.h
-│ ├── implementation/
-│ │ └── stack.c
-│ ├── main/
-│ │ └── main.c
-│ └── Makefile
-└── test_units/
-    ├── base.sobf
-    ├── base.txt
-    ├── blocks.sobf
-    ├── blocks.txt
-    ├── branchs.sobf
-    ├── branchs.txt
-    ├── fact.sobf
-    ├── fact.txt
-    ├── ints.sobf
-    ├── ints.txt
-    ├── pinetree.sobf
-    ├── pinetree.txt
-    ├── prims.sobf
-    ├── prims.txt
-    ├── wumpus.sobf
-    └── wumpus.txt
-```
-
 # Outils utilisees
 
 * SublimeText
 * GCC
-* *Git*
+* Git
 * Debian dans WSL
 * VM Debian dans VirtualBox
 
@@ -80,4 +43,4 @@ OCaml_VM/
 
 
 
-[caml_instructions]: ./docs/caml-instructions.pdf
+[caml_instructions]: ./documentation/caml-instructions.pdf
