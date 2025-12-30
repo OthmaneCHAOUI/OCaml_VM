@@ -15,7 +15,7 @@ typedef struct Stack Stack;
 
 int stack_is_empty(Stack);
 int stack_is_full(Stack);
-void resize(Stack*, int);
+void resize_stack(Stack*, int);
 void init_stack(Stack*, int);
 void stack_push(Stack*, long int);
 long int stack_pop(Stack*);

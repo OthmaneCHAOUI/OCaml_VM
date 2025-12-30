@@ -29,7 +29,7 @@ int stack_is_full(Stack s) {
 @assigns s->capacity
 @ensures changes the stack's capacity to the new capacity; s->capacity = new_capacity
 */
-void resize(Stack *s, int new_capacity) {
+void resize_stack(Stack *s, int new_capacity) {
     long int *new_data = (long int*)malloc(new_capacity * sizeof(long int));
 
     for (int i = 0; i < s->size; i++)
@@ -58,7 +58,7 @@ void init_stack(Stack* s, int capacity) {
 */
 void stack_push(Stack* s, long int value) {
 	if (stack_is_full(*s)) {
-		resize(s, 2 * s -> capacity);
+		resize_stack(s, 2 * s -> capacity);
 	}
 
 	s -> data[s->size] = value;
@@ -71,9 +71,9 @@ void stack_push(Stack* s, long int value) {
 @ensures pops the size value off the stack; s->size--, s->data has as the new top the value beneath the old top
 */
 long int stack_pop(Stack* s) {
-	s -> size--;
+	long int removed = s -> data[s->size - 1];
 
-	long int removed = s -> data[s->size];
+	s -> size--;
 
 	return removed;
 }
@@ -93,7 +93,7 @@ void free_stack(Stack* s) {
 @ensures prints the stack
 */
 void print_stack(Stack s) {
-	for (int i = s.size; i >= 0; i--) {
+	for (int i = s.size - 1; i >= 0; i--) {
 		printf("%4ld", s.data[i]);
 	}
 	printf("\n");

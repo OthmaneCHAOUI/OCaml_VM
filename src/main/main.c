@@ -4,13 +4,18 @@
 int main(void) {
     Stack s;
 
-    init_stack(&s, 2);
+    init_stack(&s, 5);
 
-    stack_push(&s, 10);
-    stack_push(&s, 20);
-    stack_push(&s, 30);  // test resize
-
+    stack_push(&s, 1);
+    stack_push(&s, 2);
+    stack_push(&s, 3);
+    stack_push(&s, 3);
     print_stack(s);
+
+    long int n = stack_pop(&s);
+    printf("%ld\n", n);
+    print_stack(s);
+
 
     free_stack(&s);
     
