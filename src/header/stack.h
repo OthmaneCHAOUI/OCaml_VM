@@ -2,9 +2,24 @@
 * this file is a header for functions related to the stack
 */
 
-#define _STACK_H
 #ifndef _STACK_H
+#define _STACK_H
 
+struct Stack {
+    long int *data;
+    int capacity;
+    int size;
+};
 
+typedef struct Stack Stack;
 
-#endif _STACK_H
+int stack_is_empty(Stack);
+int stack_is_full(Stack);
+void resize(Stack*, int);
+void init_stack(Stack*, int);
+void stack_push(Stack*, long int);
+long int stack_pop(Stack*);
+void free_stack(Stack*);
+void print_stack(Stack);
+
+#endif
