@@ -71,9 +71,9 @@ void stack_push(Stack* s, long int value) {
 @ensures pops the size value off the stack; s->size--, s->data has as the new top the value beneath the old top
 */
 long int stack_pop(Stack* s) {
-	long int removed = s -> data[s->size - 1];
-
 	s -> size--;
+
+	long int removed = s -> data[s->size];
 
 	return removed;
 }
@@ -97,4 +97,13 @@ void print_stack(Stack s) {
 		printf("%4ld", s.data[i]);
 	}
 	printf("\n");
+}
+
+/*
+@requires not empty stack s and integer depth < s.size
+@assigns nothing
+@ensures returns element of s in a specific depth starting from 0 for the top element
+*/
+long int stack_seek(Stack s, int depth) {
+	return s.data[s.size - depth - 1];
 }

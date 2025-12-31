@@ -21,5 +21,6 @@ void stack_push(Stack*, long int);
 long int stack_pop(Stack*);
 void free_stack(Stack*);
 void print_stack(Stack);
+long int stack_seek(Stack, int);
 
 #endif
