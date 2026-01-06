@@ -10,6 +10,7 @@ struct file_data {
 
 typedef struct file_data file_data;
 
+int is_sobf_file(char*);
 void extract_file_data(char*, file_data*);
 void free_file_data(file_data*);
 

@@ -18,5 +18,6 @@ long int stack_pop(Stack*);
 void free_stack(Stack*);
 void print_stack(Stack);
 long int stack_seek(Stack, int);
+long int stack_top(Stack);
 
 #endif

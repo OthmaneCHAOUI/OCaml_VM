@@ -27,6 +27,10 @@ int stack_is_full(Stack s) {
 */
 void resize_stack(Stack *s, int new_capacity) {
     long int *new_data = (long int*)malloc(new_capacity * sizeof(long int));
+    if (!new_data) {
+ 	    perror("malloc");
+    	exit(EXIT_FAILURE);
+	}
 
     for (int i = 0; i < s->size; i++)
         new_data[i] = s->data[i];
@@ -43,6 +47,10 @@ void resize_stack(Stack *s, int new_capacity) {
 */
 void init_stack(Stack* s, int capacity) {
 	s -> data = (long int*)malloc(capacity * sizeof(long int));
+
+	if (capacity <= 0)
+	    capacity = 1;
+
 	s -> capacity = capacity;
 	s -> size = 0;
 }
@@ -67,11 +75,13 @@ void stack_push(Stack* s, long int value) {
 @ensures pops the size value off the stack; s->size--, s->data has as the new top the value beneath the old top
 */
 long int stack_pop(Stack* s) {
-	s -> size--;
+    if (stack_is_empty(*s)) {
+        fprintf(stderr, "stack_pop: empty stack\n");
+        exit(EXIT_FAILURE);
+    }
 
-	long int removed = s -> data[s->size];
-
-	return removed;
+    s->size--;
+    return s->data[s->size];
 }
 
 /*
@@ -96,10 +106,28 @@ void print_stack(Stack s) {
 }
 
 /*
-@requires not empty stack s and integer depth < s.size
+@requires not empty stack s and integer 0 < depth < s.size
 @assigns nothing
 @ensures returns element of s in a specific depth starting from 0 for the top element
 */
 long int stack_seek(Stack s, int depth) {
+    if (depth < 0 || depth >= s.size) {
+        fprintf(stderr, "stack_peek: invalid depth\n");
+        exit(EXIT_FAILURE);
+    }
+
 	return s.data[s.size - depth - 1];
+}
+
+/*
+@requires not empty stack s
+@assigns nothing
+@ensures returns the top element of the stack
+*/
+long int stack_top(Stack s) {
+    if (stack_is_empty(s)) {
+        fprintf(stderr, "stack_top: empty stack\n");
+        exit(EXIT_FAILURE);
+    }
+    return s.data[s.size - 1];
 }

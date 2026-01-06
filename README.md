@@ -28,6 +28,8 @@ On peut regrouper les instructions en plusieurs ensembles. On n'implémentera qu
 
 # Approche et méthodologie
 
+**processus de compilation d'OCaml** comprendre les etapes de compilation, et laquelle on est sense de faire (machine virtuelle) + comprendre les entrees et les sorties
+
 **structure des fichiers**: isoler le main, les entetes, les implementations vient d'ameliorer la qualiter de code, et diminue la complexite de comprendre et detecter les differents fonctionalites du projet.
 
 **verifier structure des fichiers .sobf**: deux possibilites ont etait posees. La premier c'est de faire une fonction qui lit le fichier .sobf tout entiere et retourn les donnees du fichier comme une chaine de caractere et apres verifier si le fichier respecte la structure en accedant à la chaine apartir des indices. La deuxieme c'est de faire une fonction pour lire le fichier et verifier la structure au fur et a mesure en precisons le nombre des octects a lire. La conclusion etait de suivre la deuxieme methode car sera moins couteuse à cause que la premier emethode necessite la conversion des valeurs apartir la chaine de caractere...

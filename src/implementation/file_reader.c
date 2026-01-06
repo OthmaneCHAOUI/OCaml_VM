@@ -6,13 +6,40 @@
 #include <string.h>
 
 /*
+@requires existing and valid file name with permissions to read
+@assigns nothing
+@ensures returns 1 if the file is a sobf file, otherwise returns 0
+*/
+int is_sobf_file(char* file_name) {
+    FILE* fd;
+    char buffer[4]; // "SOBF" is 4 bytes size
+    size_t read_result;
+
+    fd = fopen(file_name, "rb");
+    if (!fd) {
+        perror("fopen");
+        return 0;
+    }
+
+    // Read exactly 4 bytes
+    read_result = fread(buffer, 4, 1, fd);
+    fclose(fd);
+
+    if (read_result != 1) {
+        return 0;
+    }
+
+    return strncmp(buffer, "SOBF", 4) == 0;
+}
+
+/*
 @requires existing and valid SOBF file name with permissions to read, and existing file_data structure
 @assigns content->c, content->v, content->codes_table, content->values_table
 @ensures saves the file data to the structure
 */
 void extract_file_data(char* file_name, file_data* content) {
 	FILE* fd;
-	char buffer[4];
+	// char buffer[4];
 	size_t read_result;
 	// int fseek_result;
 
@@ -24,7 +51,7 @@ void extract_file_data(char* file_name, file_data* content) {
 	}
 
 	// check if file is SOBF file
-    if (fread(buffer, 1, 4, fd) != 4 || strncmp(buffer, "SOBF", 4) != 0) {
+    if (!is_sobf_file(file_name)) {
         fclose(fd);
         exit(EXIT_FAILURE);
     }
@@ -61,8 +88,9 @@ void extract_file_data(char* file_name, file_data* content) {
 	// allocate and save data to the codes table
 	content -> codes_table = (int *)malloc(content->c * sizeof(int));
 	// fseek(fd, 8, SEEK_SET); // move cursor to the third line
-	read_result = fread(content->codes_table, sizeof(int), content->c, fd);
+	read_result = fread(content->codes_table, 4, content->c, fd); // 4 bytes = 32 bits like instructed
 	if (read_result != (size_t)content->c) { // a cast because content->c is integer and read_size is size_t type
+		free(content -> codes_table);
 		fclose(fd);
 		exit(1);
 	}
@@ -70,8 +98,9 @@ void extract_file_data(char* file_name, file_data* content) {
 	// allocate and save data to the values table
 	content -> values_table = (long int *)malloc(content->v * sizeof(long int));
 	// fseek(fd, 1, SEEK_CUR); // move cursor by 1 byte(to pass the "\n")
-	read_result = fread(content->values_table, sizeof(long int), content->v, fd);
+	read_result = fread(content->values_table, 8, content->v, fd); // 8 bytes = 64 bits like instructed
 	if (read_result != (size_t)content->v) { // a cast because content->v is integer and read_size is size_t type
+		free(content -> values_table);
 		fclose(fd);
 		exit(1);
 	}
