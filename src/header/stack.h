@@ -1,7 +1,3 @@
-/*
-* this file is a header for functions related to the stack
-*/
-
 #ifndef _STACK_H
 #define _STACK_H
 

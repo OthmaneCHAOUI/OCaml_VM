@@ -26,13 +26,25 @@ Pour exécuter le programme, on regarde le code situé à l'indice courant. On e
 
 On peut regrouper les instructions en plusieurs ensembles. On n'implémentera qu'un sous-ensemble des instructions de la machine virtuelle, uniquement celles présentées ici. On pourra également se référer à [ce document][caml_instructions] qui date un peu mais reste pertinent pour décrire les instructions.
 
+# Approche et méthodologie
+
+**structure des fichiers**: isoler le main, les entetes, les implementations vient d'ameliorer la qualiter de code, et diminue la complexite de comprendre et detecter les differents fonctionalites du projet.
+
+**verifier structure des fichiers .sobf**: deux possibilites ont etait posees. La premier c'est de faire une fonction qui lit le fichier .sobf tout entiere et retourn les donnees du fichier comme une chaine de caractere et apres verifier si le fichier respecte la structure en accedant à la chaine apartir des indices. La deuxieme c'est de faire une fonction pour lire le fichier et verifier la structure au fur et a mesure en precisons le nombre des octects a lire. La conclusion etait de suivre la deuxieme methode car sera moins couteuse à cause que la premier emethode necessite la conversion des valeurs apartir la chaine de caractere...
+
+**sauvegarder les donnees du fichier .sobf**: j'avais penser en deux possibilites. Soit, pour chaque donnees des fichiers de test .sobf je fais une fonctions qui lit et retourn cette donnee. Soit je fait une structure de donnee et je cree une seul fonction qui lit et sauvegarde les donnees du fichier dans les elements de la structure. J'avais me concacre sur la deuxieme car je lit le fichier une seul fois, au contraire de la methode 1 qui dois lit le fichier pour chaque donnee.
+
+**`rb` vs `r`** rb pour binaire
+
+**fonction is_sobf_file** additionel
+
 # Outils utilisees
 
 * SublimeText
 * GCC
 * Git
 * Debian dans WSL
-* VM Debian dans VirtualBox
+* Debian dans VirtualBox
 
 # Resources
 
