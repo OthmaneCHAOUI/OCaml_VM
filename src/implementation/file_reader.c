@@ -67,7 +67,7 @@ void extract_file_data(char* file_name, file_data* content) {
         fclose(fd); exit(1);
     }
 
-	if (content->c <= 0 || content->v <= 0) {
+	if (content->c <= 0 || content->v < 0) {
 		printf("\nerror: negative sizes c or v\n");
 		fclose(fd);
 		exit(1);
