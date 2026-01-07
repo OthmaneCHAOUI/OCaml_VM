@@ -33,12 +33,8 @@ int main(int argc, char *argv[]) {
     }
 
     file_data prog;
-    printf("\nlog1\n");
 
     extract_file_data(file_name, &prog);
-    printf("\nlog1\n");
-
-    // printf("%d %d\n", prog.c, prog.v);
 
     VM vm;
 
@@ -51,12 +47,8 @@ int main(int argc, char *argv[]) {
         print_machine_state(vm);
     }
 
-    printf("Program finished.\n");
-
     // free allocated spaces
     free_file_data(&prog);
-    // free(prog.codes_table);
-    // free(prog.values_table);
 
     return 0;
 }
