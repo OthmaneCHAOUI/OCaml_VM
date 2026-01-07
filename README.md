@@ -42,6 +42,8 @@ On peut regrouper les instructions en plusieurs ensembles. On n'implémentera qu
 
 **lire les tailles apartir les fichiers**
 
+**initialiser les variables dans case** => ajouter "{}"
+
 # Outils utilisees
 
 * SublimeText

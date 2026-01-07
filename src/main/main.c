@@ -2,24 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../header/file_reader.h"
-#include "../header/stack.h"
 #include "../header/virtual_machine.h"
-
-void print_machine_state(VM vm) {
-    printf("Index: %d\n", vm.index);
-    printf("Accumulator: %ld\n", vm.acc);
-    
-    printf("Stack:\n");
-    print_stack(vm.stack);
-
-    printf("Global:\n");
-    // global_size doit être stocké dans votre structure VM lors du chargement
-    for (int i = 0; i < vm.global_size; i++) {
-        printf("%d %ld\n", i, vm.globals[i]);
-    }
-}
+// no need to include stack.h, because it is already included in virtual_machine.h
 
 int main(int argc, char *argv[]) {
+    // check if number of arguments is 2 or more
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <bytecode_file> [--print-end-machine]\n", argv[0]);
         return 1;
@@ -27,6 +14,7 @@ int main(int argc, char *argv[]) {
 
     char *file_name = argv[1];
 
+    // check if file is a valid sobf file
     if (!is_sobf_file(file_name)) {
         fprintf(stderr, "Error: '%s' is not a valid SOBF file\n", file_name);
         return EXIT_FAILURE;
@@ -34,15 +22,18 @@ int main(int argc, char *argv[]) {
 
     file_data prog;
 
+    // extract data from sobf file
     extract_file_data(file_name, &prog);
 
     VM vm;
 
+    // save data to the vm
     init_vm(&vm, prog.values_table, prog.v, prog.codes_table, prog.c);
 
+    // run vm
     run_vm(&vm);
 
-    // 3. Affichage de l'état final si demandé
+    // print machine's state
     if (argc >= 3 && strcmp(argv[2], "--print-end-machine") == 0) {
         print_machine_state(vm);
     }

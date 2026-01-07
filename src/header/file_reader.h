@@ -1,6 +1,7 @@
 #ifndef _FILE_READER_H
 #define _FILE_READER_H
 
+// structure definition to store data from the file
 struct file_data {
 	int c;
 	int v;

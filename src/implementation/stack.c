@@ -102,7 +102,6 @@ void print_stack(Stack s) {
 	for (int i = s.size - 1; i >= 0; i--) {
 		printf("%ld\n", s.data[i]);
 	}
-	printf("\n");
 }
 
 /*
@@ -111,12 +110,11 @@ void print_stack(Stack s) {
 @ensures returns element of s in a specific depth starting from 0 for the top element
 */
 long int stack_seek(Stack s, int depth) {
-    if (depth < 0 || depth >= s.size) {
-        fprintf(stderr, "stack_seek: invalid depth\n");
-        exit(EXIT_FAILURE);
+    if (s.size <= depth) {
+        fprintf(stderr, "Stack underflow: seek depth %d on stack size %d\n", depth, s.size);
+        exit(1);
     }
-
-	return s.data[s.size - depth - 1];
+    return s.data[s.size - 1 - depth];
 }
 
 /*

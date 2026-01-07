@@ -1,6 +1,7 @@
 #ifndef _STACK_H
 #define _STACK_H
 
+// structure definition for the stack
 struct Stack {
     long int *data;
     int capacity;
