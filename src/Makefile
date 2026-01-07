@@ -12,7 +12,6 @@ MAIN_DIR = main
 SRCS = \
 	$(SRC_DIR)/stack.c \
 	$(SRC_DIR)/file_reader.c \
-	$(SRC_DIR)/primitives.c \
 	$(SRC_DIR)/virtual_machine.c \
 	$(MAIN_DIR)/main.c
 

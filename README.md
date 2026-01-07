@@ -40,6 +40,8 @@ On peut regrouper les instructions en plusieurs ensembles. On n'implémentera qu
 
 **fonction is_sobf_file** additionel
 
+**lire les tailles apartir les fichiers**
+
 # Outils utilisees
 
 * SublimeText

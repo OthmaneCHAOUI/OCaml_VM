@@ -100,7 +100,7 @@ void free_stack(Stack* s) {
 */
 void print_stack(Stack s) {
 	for (int i = s.size - 1; i >= 0; i--) {
-		printf("%4ld", s.data[i]);
+		printf("%ld\n", s.data[i]);
 	}
 	printf("\n");
 }
@@ -112,7 +112,7 @@ void print_stack(Stack s) {
 */
 long int stack_seek(Stack s, int depth) {
     if (depth < 0 || depth >= s.size) {
-        fprintf(stderr, "stack_peek: invalid depth\n");
+        fprintf(stderr, "stack_seek: invalid depth\n");
         exit(EXIT_FAILURE);
     }
 
