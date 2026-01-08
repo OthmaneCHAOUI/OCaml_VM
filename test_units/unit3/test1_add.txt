@@ -1,0 +1,7 @@
+Test de l'addition : 5 + 3 = 8
+Instructions utilisées : CONSTINT, PUSHCONSTINT, ADDINT, STOP
+
+Index: 5
+Accumulator: 17
+Stack:
+Global:

@@ -1,0 +1,7 @@
+Test d'opérations combinées : (2 + 3) × 4 = 20
+Instructions utilisées : CONSTINT, PUSHCONSTINT, ADDINT, MULINT, STOP
+
+Index: 9
+Accumulator: 41
+Stack:
+Global:

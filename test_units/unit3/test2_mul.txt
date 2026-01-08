@@ -1,0 +1,7 @@
+Test de la multiplication : 6 × 7 = 42
+Instructions utilisées : CONSTINT, PUSHCONSTINT, MULINT, STOP
+
+Index: 5
+Accumulator: 85
+Stack:
+Global:

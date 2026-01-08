@@ -1,0 +1,7 @@
+Test de la division entière : 20 ÷ 4 = 5
+Instructions utilisées : CONSTINT, PUSHCONSTINT, DIVINT, STOP
+
+Index: 5
+Accumulator: 11
+Stack:
+Global:

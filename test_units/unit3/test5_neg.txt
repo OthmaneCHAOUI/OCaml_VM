@@ -1,0 +1,7 @@
+Test de la négation d'un entier : -5
+Instructions utilisées : CONSTINT, NEGINT, STOP
+
+Index: 3
+Accumulator: -9
+Stack:
+Global:
