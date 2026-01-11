@@ -1,6 +1,8 @@
 Test d'opérations combinées : (2 + 3) × 4 = 20
 Instructions utilisées : CONSTINT, PUSHCONSTINT, ADDINT, MULINT, STOP
+resultat encodée dans l'accumulateur: 41 = 20 * 2 + 1
 
+./ocaml_vm ../test_units/unit3/combine.sobf --print-end-machine
 Index: 9
 Accumulator: 41
 Stack:

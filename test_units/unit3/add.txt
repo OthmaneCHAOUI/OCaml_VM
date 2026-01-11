@@ -1,6 +1,8 @@
 Test de l'addition : 5 + 3 = 8
 Instructions utilisées : CONSTINT, PUSHCONSTINT, ADDINT, STOP
+resultat encodée dans l'accumulateur: 17 = 8 * 2 + 1
 
+./ocaml_vm ../test_units/unit3/add.sobf --print-end-machine
 Index: 5
 Accumulator: 17
 Stack:

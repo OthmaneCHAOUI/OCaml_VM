@@ -1,6 +1,8 @@
 Test de la soustraction : 10 - 3 = 7
 Instructions utilisées : CONSTINT, PUSHCONSTINT, SUBINT, STOP
+resultat encodée dans l'accumulateur: 15 = 7 * 2 + 1
 
+./ocaml_vm ../test_units/unit3/sub.sobf --print-end-machine
 Index: 5
 Accumulator: 15
 Stack:

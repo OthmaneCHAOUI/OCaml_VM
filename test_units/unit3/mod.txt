@@ -1,6 +1,8 @@
 Test du modulo (reste de division) : 17 % 5 = 2
 Instructions utilisées : CONSTINT, PUSHCONSTINT, MODINT, STOP
+resultat encodée dans l'accumulateur: 5 = 2 * 2 + 1
 
+./ocaml_vm ../test_units/unit3/mod.sobf --print-end-machine
 Index: 5
 Accumulator: 5
 Stack:

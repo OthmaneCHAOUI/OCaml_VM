@@ -1,6 +1,8 @@
 Test de la multiplication : 6 × 7 = 42
 Instructions utilisées : CONSTINT, PUSHCONSTINT, MULINT, STOP
+resultat encodée dans l'accumulateur: 85 = 2 * 42 + 1
 
+./ocaml_vm ../test_units/unit3/mult.sobf --print-end-machine
 Index: 5
 Accumulator: 85
 Stack:

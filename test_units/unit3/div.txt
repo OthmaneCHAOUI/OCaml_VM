@@ -1,6 +1,8 @@
 Test de la division entière : 20 ÷ 4 = 5
 Instructions utilisées : CONSTINT, PUSHCONSTINT, DIVINT, STOP
+resultat encodée dans l'accumulateur: 11 = 5 * 2 + 1
 
+./ocaml_vm ../test_units/unit3/div.sobf --print-end-machine
 Index: 5
 Accumulator: 11
 Stack:

@@ -1,0 +1,9 @@
+Test de la négation d'un entier : -5
+Instructions utilisées : CONSTINT, NEGINT, STOP
+resultat encodée dans l'accumulateur: -9 = (-5) * 2 + 1
+
+./ocaml_vm ../test_units/unit3/neg.sobf --print-end-machine
+Index: 3
+Accumulator: -9
+Stack:
+Global:
