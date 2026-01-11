@@ -12,10 +12,10 @@
 */
 int is_sobf_file(char* file_name) {
     FILE* fd;
-    char buffer[4]; // "SOBF" is 4 bytes size
+    char buffer[4]; // "SOBF" is 4 bytes long
     size_t read_result;
 
-    fd = fopen(file_name, "rb");
+    fd = fopen(file_name, "rb"); // "rb" for reading binary files
     if (!fd) {
         perror("fopen");
         return 0;
@@ -29,7 +29,7 @@ int is_sobf_file(char* file_name) {
         return 0;
     }
 
-    return strncmp(buffer, "SOBF", 4) == 0;
+    return strncmp(buffer, "SOBF", 4) == 0; // strncmp compares two strings for the size provided as 3rd argument
 }
 
 /*
@@ -41,6 +41,7 @@ void extract_file_data(char* file_name, file_data* content) {
 	FILE* fd;
 	size_t read_result;
 	int fseek_result;
+	int fscanf_result;
 
 	// initialize content
 	content -> c = 0;
@@ -62,13 +63,14 @@ void extract_file_data(char* file_name, file_data* content) {
 	}
 
     // read and save "c" and "v"
-	if (fscanf(fd, "%d %d", &(content->c), &(content->v)) != 2) {
-        fprintf(stderr, "Error reading sizes c and v\n");
-        fclose(fd); exit(1);
+	fscanf_result = fscanf(fd, "%d %d", &(content->c), &(content->v));
+	if (fscanf_result != 2) {
+        fprintf(stderr, "fscanf: failure reading sizes\n");
+        fclose(fd);
+        exit(1);
     }
-
-	if (content->c <= 0 || content->v < 0) {
-		printf("\nerror: negative sizes c or v\n");
+	if (content->c <= 0 || content->v < 0) { // content->v can be 0, because the values table can be of size 0
+		printf("\nError: negative sizes c = %d and v = %d\n", content->c, content->v);
 		fclose(fd);
 		exit(1);
 	}

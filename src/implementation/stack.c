@@ -111,21 +111,8 @@ void print_stack(Stack s) {
 */
 long int stack_seek(Stack s, int depth) {
     if (s.size <= depth) {
-        fprintf(stderr, "Stack underflow: seek depth %d on stack size %d\n", depth, s.size);
+        fprintf(stderr, "stack_seek: failure to seek depth %d on stack size %d\n", depth, s.size);
         exit(1);
     }
     return s.data[s.size - 1 - depth];
-}
-
-/*
-@requires not empty stack s
-@assigns nothing
-@ensures returns the top element of the stack
-*/
-long int stack_top(Stack s) {
-    if (stack_is_empty(s)) {
-        fprintf(stderr, "stack_top: empty stack\n");
-        exit(EXIT_FAILURE);
-    }
-    return s.data[s.size - 1];
 }

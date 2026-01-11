@@ -3,10 +3,10 @@
 
 // structure definition to store data from the file
 struct file_data {
-	int c;
-	int v;
-	int* codes_table;
-	long int* values_table;
+	int c;					// size of codes table
+	int v;					// size of values table
+	int* codes_table;		// code table data
+	long int* values_table; // values table data
 };
 
 typedef struct file_data file_data;

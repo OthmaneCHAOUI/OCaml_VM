@@ -3,9 +3,9 @@
 
 // structure definition for the stack
 struct Stack {
-    long int *data;
-    int capacity;
-    int size;
+    long int* data;     // table containing data
+    int capacity;       // maximum capacity of the stack
+    int size;           // current size of the stack
 };
 
 typedef struct Stack Stack;

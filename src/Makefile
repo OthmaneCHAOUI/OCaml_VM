@@ -1,35 +1,24 @@
-# Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11
-INCLUDES = -I header
+CFLAGS = -Wall -Wextra -std=c11 -I header
+EXEC = ocaml_vm # executable
 
-# Directories
-HDR_DIR = header
-SRC_DIR = implementation
-MAIN_DIR = main
+all: $(EXEC)
 
-# Sources
-SRCS = \
-	$(SRC_DIR)/stack.c \
-	$(SRC_DIR)/file_reader.c \
-	$(SRC_DIR)/virtual_machine.c \
-	$(MAIN_DIR)/main.c
+$(EXEC): main.o file_reader.o stack.o virtual_machine.o
+	$(CC) $(CFLAGS) -o $@ $^
 
-# Output
-TARGET = vm_ocaml
+main.o: main/main.c header/file_reader.h header/stack.h header/virtual_machine.h
+	$(CC) $(CFLAGS) -c $<
 
-# Default rule
-all: $(TARGET)
+file_reader.o: implementation/file_reader.c header/file_reader.h
+	$(CC) $(CFLAGS) -c $<
 
-# Link
-$(TARGET): $(SRCS)
-	$(CC) $(CFLAGS) $(INCLUDES) $^ -o $@
+stack.o: implementation/stack.c header/stack.h
+	$(CC) $(CFLAGS) -c $<
 
-# Clean
+virtual_machine.o: implementation/virtual_machine.c header/virtual_machine.h header/stack.h
+	$(CC) $(CFLAGS) -c $<
+
+# to clean the executable => remove ocaml_vm
 clean:
-	rm -f $(TARGET)
-
-# Rebuild
-re: clean all
-
-
+	rm -f *.o $(EXEC)

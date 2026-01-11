@@ -4,7 +4,7 @@
 
 /*
 @resuires virtual machine structure, globales table and its size, codes table and its size, a stack
-@assigns vm->index, vm->acc, vm->codes, vm->codes_size, vm->globals, vm->globals_size, vm->stack
+@assigns vm->index, vm->acc, vm->codes, vm->codes_size, vm->globals, vm->globals_size, vm->stack, vm->atoms
 @ensures initializes the virtual machine
 */
 void init_vm(VM* vm, long int* globals, int v, int* codes, int c) {
@@ -14,8 +14,7 @@ void init_vm(VM* vm, long int* globals, int v, int* codes, int c) {
     vm -> globals = globals;
     vm -> codes_size = c;
     vm -> globals_size = v;
-    init_stack(&vm->stack, 16);
-    // stack_push(&vm->stack, 1); // initialize the stack, because some instructions access data from the stack from the get go
+    init_stack(&vm->stack, 20);
 	vm->atoms = malloc(256 * sizeof(long int));
 	for (int i = 0; i < 256; i++) {
 	    vm->atoms[i] = (long int)malloc(0);
@@ -25,16 +24,29 @@ void init_vm(VM* vm, long int* globals, int v, int* codes, int c) {
 /*
 @requires number of primitive, size of table, table
 @assigns nothing
-@ensures executes the called primitives depending on their number
+@ensures executes the called primitives depending on their number (prim)
 */
 long int call_primitive(int prim, int argc, long int* argv) {
-	(void)argc;
+	// (void)argc; // to ignore the argument if not used
+	if (argc > 0 && argv == NULL) {
+		fprintf(stderr, "Error: empty argv with argc = %d != 0\n", argc);
+		exit(1);
+	}
+    
     switch (prim) {
         case 15: {
+        	if (argc != 2) {
+        		fprintf(stderr, "Error: unexpected number of arguments %d (awaits 2 arguments), for primitive %d\n", argc, prim);
+        		exit(1);
+        	}
+
             int n = (int)((argv[0] - 1) / 2);
 
             long int* tab = malloc(n * sizeof(long int));
-            if (!tab) { perror("malloc"); exit(EXIT_FAILURE); }
+            if (!tab) {
+            	perror("malloc");
+            	exit(EXIT_FAILURE);
+            }
 
             for (int i = 0; i < n; i++) {
                 tab[i] = argv[1];
@@ -43,35 +55,77 @@ long int call_primitive(int prim, int argc, long int* argv) {
             return (long int)tab;
         }
         case 288: {
+        	if (argc != 1) {
+        		fprintf(stderr, "Error: unexpected number of arguments %d (awaits 1 arguments), for primitive %d\n", argc, prim);
+        		exit(1);
+        	}
+
             FILE* f = (FILE*)argv[0];  
+            if (!f) {
+        		fprintf(stderr, "Error: primitive %d in call_primitive", prim);
+            	exit(1);
+            }
             fflush(f);
+
             return 1; 
         }
         case 293: {
+        	if (argc != 1) {
+        		fprintf(stderr, "Error: unexpected number of arguments %d (awaits 1 arguments), for primitive %d\n", argc, prim);
+        		exit(1);
+        	}
+
             FILE* f = (FILE*)argv[0];
+            if (!f) {
+        		fprintf(stderr, "Error: primitive %d in call_primitive", prim);
+            	exit(1);
+            }
             int c = fgetc(f);
+
             return (long int)(2 * c + 1); 
         }
         case 302:
+        	if (argc != 1) {
+        		fprintf(stderr, "Error: unexpected number of arguments %d (awaits 1 arguments), for primitive %d\n", argc, prim);
+        		exit(1);
+        	}
+
             if (argv[0] == 1)
                 return (long int)stdin;
+
             return 1;
         case 304:
+        	if (argc != 1) {
+        		fprintf(stderr, "Error: unexpected number of arguments %d (awaits 1 arguments), for primitive %d\n", argc, prim);
+        		exit(1);
+        	}
+
             if (argv[0] == 3)
                 return (long int)stdout;
             if (argv[0] == 5)
                 return (long int)stderr;
+
             return 1;
         case 310: {
+        	if (argc != 2) {
+        		fprintf(stderr, "Error: unexpected number of arguments %d (awaits 2 arguments), for primitive %d\n", argc, prim);
+        		exit(1);
+        	}
+
             FILE* f = (FILE*)argv[0];
+            if (!f) {
+        		fprintf(stderr, "Error: primitive %d in call_primitive", prim);
+            	exit(1);
+            }
+
             int c = (int)((argv[1] - 1) / 2);
             fputc(c, f);
+
             return 1;
         }
-
         default:
             fprintf(stderr, "Unknown primitive %d\n", prim);
-            exit(EXIT_FAILURE);
+            exit(1);
     }
 }
 
@@ -173,10 +227,10 @@ void run_vm(VM* vm) {
 			    long int val_stack = stack_pop(&vm->stack);
 			    
 			    if (val_stack == vm->acc) {
-			        vm->acc = 3; // true
+			        vm->acc = 3; 
 			    }
 			    else {
-			        vm->acc = 1; // false
+			        vm->acc = 1; 
 			    }
 			    break;
 			}
@@ -185,10 +239,10 @@ void run_vm(VM* vm) {
 			    long int val_stack = stack_pop(&vm->stack);
 			    
 			    if (val_stack != vm->acc) {
-			        vm->acc = 3; // true
+			        vm->acc = 3; 
 			    }
 			    else {
-			        vm->acc = 1; // false
+			        vm->acc = 1; 
 			    }
 			    break;
 			}
@@ -242,40 +296,45 @@ void run_vm(VM* vm) {
 			    continue;
 			}
 
-			case 109: // NEGINT
-			    // formula : 2 - (2n + 1) = 2 - 2n - 1 = -2n + 1 = 2(-n) + 1
-			    vm->acc = 2 - vm->acc;
+			case 109: { // NEGINT
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    vm->acc = 2 * (-n) + 1;
 			    break;
+			}
 
 			case 110: { // ADDINT
-			    long int m = stack_pop(&vm->stack);
-			    long int n = vm->acc;
-			    // formula : (2n + 1) + (2m + 1) - 1 = 2n + 2m + 2 - 1 = 2(n + m) + 1
-			    vm->acc = n + m - 1;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
+			    vm->acc = 2 * (n + m) + 1;
 			    break;
 			}
 
 			case 111: { // SUBINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    // formula : (2n + 1) - (2m + 1) + 1 = 2n - 2m + 1 = 2(n - m) + 1
-			    vm->acc = n_enc - m_enc + 1;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
+			    vm->acc = 2 * (n - m) + 1;
 			    break;
 			}
 
 			case 112: { // MULINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    // formula : 2mn + 1 = ((n_enc - 1) / 2) * (m_enc - 1) + 1 knowing that n_enc = 2n + 1 and m_enc = 2m + 1
-			    vm->acc = ((n_enc - 1) / 2) * (m_enc - 1) + 1;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
+			    vm->acc = 2 * (n * m) + 1;
 			    break;
 			}
 
 			case 113: { // DIVINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int n = (n_enc - 1) / 2;
-			    long int m = (m_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
 
 			    if (m == 0) {
 			        fprintf(stderr, "Fatal error: exception Division_by_zero\n");
@@ -286,10 +345,10 @@ void run_vm(VM* vm) {
 			}
 
 			case 114: { // MODINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int n = (n_enc - 1) / 2;
-			    long int m = (m_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
 
 			    if (m == 0) {
 			        fprintf(stderr, "Fatal error: exception Division_by_zero\n");
@@ -300,37 +359,37 @@ void run_vm(VM* vm) {
 			}
 
 			case 115: { // ANDINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int m = (m_enc - 1) / 2;
-				long int n = (n_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int m = (m_encode - 1) / 2;
+				long int n = (n_encode - 1) / 2;
 			    vm->acc = 2 * (m & n) + 1;
 			    break;
 			}
 
 			case 116: { // ORINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int m = (m_enc - 1) / 2;
-				long int n = (n_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int m = (m_encode - 1) / 2;
+				long int n = (n_encode - 1) / 2;
 			    vm->acc = 2 * (m | n) + 1;
 			    break;
 			}
 
 			case 117: { // XORINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int m = (m_enc - 1) / 2;
-				long int n = (n_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int m = (m_encode - 1) / 2;
+				long int n = (n_encode - 1) / 2;
 			    vm->acc = 2 * (m ^ n) + 1;
 			    break;
 			}
 
 			case 118: { // LSLINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int n = (n_enc - 1) / 2;
-			    long int m = (m_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
 
 			    long int res = n;
 			    for (int i = 0; i < m; i++) res *= 2;
@@ -340,10 +399,10 @@ void run_vm(VM* vm) {
 			}
 
 			case 119: { // LSRINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    unsigned long int n = (unsigned long int)((n_enc - 1) / 2);
-			    long int m = (m_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    unsigned long int n = (unsigned long int)((n_encode - 1) / 2);
+			    long int m = (m_encode - 1) / 2;
 
 			    unsigned long int res = n;
 			    for (int i = 0; i < m; i++) res /= 2;
@@ -353,10 +412,10 @@ void run_vm(VM* vm) {
 			}
 
 			case 120: { // ASRINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int n = (n_enc - 1) / 2;
-			    long int m = (m_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
 
 			    long int res = n;
 			    for (int i = 0; i < m; i++) res /= 2;
@@ -366,60 +425,60 @@ void run_vm(VM* vm) {
 			}
 
 			case 123: { // LTINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int n = (n_enc - 1) / 2;
-			    long int m = (m_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
 			    if (n < m) vm->acc = 3;
 			    else vm->acc = 1;
 			    break;
 			}
 
 			case 124: { // LEINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int n = (n_enc - 1) / 2;
-			    long int m = (m_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
 			    if (n <= m) vm->acc = 3;
 			    else vm->acc = 1;
 			    break;
 			}
 
 			case 125: { // GTINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int n = (n_enc - 1) / 2;
-			    long int m = (m_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
 			    if (n > m) vm->acc = 3;
 			    else vm->acc = 1;
 			    break;
 			}
 
 			case 126: { // GEINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    long int n = (n_enc - 1) / 2;
-			    long int m = (m_enc - 1) / 2;
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
+			    long int m = (m_encode - 1) / 2;
 			    if (n >= m) vm->acc = 3;
 			    else vm->acc = 1;
 			    break;
 			}
 
 			case 137: { // ULTINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    unsigned long int n = (unsigned long int)((n_enc - 1) / 2);
-			    unsigned long int m = (unsigned long int)((m_enc - 1) / 2);
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    unsigned long int n = (unsigned long int)((n_encode - 1) / 2);
+			    unsigned long int m = (unsigned long int)((m_encode - 1) / 2);
 			    if (n < m) vm->acc = 3;
 			    else vm->acc = 1;
 			    break;
 			}
 
 			case 138: { // UGEINT
-			    long int m_enc = stack_pop(&vm->stack);
-			    long int n_enc = vm->acc;
-			    unsigned long int n = (unsigned long int)((n_enc - 1) / 2);
-			    unsigned long int m = (unsigned long int)((m_enc - 1) / 2);
+			    long int m_encode = stack_pop(&vm->stack);
+			    long int n_encode = vm->acc;
+			    unsigned long int n = (unsigned long int)((n_encode - 1) / 2);
+			    unsigned long int m = (unsigned long int)((m_encode - 1) / 2);
 			    if (n >= m) vm->acc = 3;
 			    else vm->acc = 1;
 			    break;
@@ -427,8 +486,8 @@ void run_vm(VM* vm) {
 
 			case 127: { // OFFSETINT
 			    int m = vm->codes[vm->index + 1];
-			    long int n_enc = vm->acc;
-			    long int n = (n_enc - 1) / 2;
+			    long int n_encode = vm->acc;
+			    long int n = (n_encode - 1) / 2;
 			    vm->acc = (n + m) * 2 + 1;
 			    vm->index += 2;
 			    continue;
@@ -533,8 +592,8 @@ void run_vm(VM* vm) {
 
 			case 94: { // C_CALL2
 			    int n = vm->codes[vm->index + 1];
-			    long int v2 = stack_pop(&vm->stack);
-			    long int args[2] = { vm->acc, v2 };
+			    long int arg2 = stack_pop(&vm->stack);
+			    long int args[2] = {vm->acc, arg2};
 
 			    vm->acc = call_primitive(n, 2, args);
 			    vm->index += 2;
@@ -543,9 +602,9 @@ void run_vm(VM* vm) {
 
 			case 95: { // C_CALL3
 			    int n = vm->codes[vm->index + 1];
-			    long int v2 = stack_pop(&vm->stack);
-			    long int v3 = stack_pop(&vm->stack);
-			    long int args[3] = { vm->acc, v2, v3 };
+			    long int arg2 = stack_pop(&vm->stack);
+			    long int arg3 = stack_pop(&vm->stack);
+			    long int args[3] = {vm->acc, arg2, arg3};
 
 			    vm->acc = call_primitive(n, 3, args);
 			    vm->index += 2;
@@ -554,10 +613,10 @@ void run_vm(VM* vm) {
 
 			case 96: { // C_CALL4
 			    int n = vm->codes[vm->index + 1];
-			    long int v2 = stack_pop(&vm->stack);
-			    long int v3 = stack_pop(&vm->stack);
-			    long int v4 = stack_pop(&vm->stack);
-			    long int args[4] = { vm->acc, v2, v3, v4 };
+			    long int arg2 = stack_pop(&vm->stack);
+			    long int arg3 = stack_pop(&vm->stack);
+			    long int arg4 = stack_pop(&vm->stack);
+			    long int args[4] = {vm->acc, arg2, arg3, arg4};
 
 			    vm->acc = call_primitive(n, 4, args);
 			    vm->index += 2;
@@ -566,11 +625,11 @@ void run_vm(VM* vm) {
 
 			case 97: { // C_CALL5
 			    int n = vm->codes[vm->index + 1];
-			    long int v2 = stack_pop(&vm->stack);
-			    long int v3 = stack_pop(&vm->stack);
-			    long int v4 = stack_pop(&vm->stack);
-			    long int v5 = stack_pop(&vm->stack);
-			    long int args[5] = { vm->acc, v2, v3, v4, v5 };
+			    long int arg2 = stack_pop(&vm->stack);
+			    long int arg3 = stack_pop(&vm->stack);
+			    long int arg4 = stack_pop(&vm->stack);
+			    long int arg5 = stack_pop(&vm->stack);
+			    long int args[5] = {vm->acc, arg2, arg3, arg4, arg5};
 
 			    vm->acc = call_primitive(n, 5, args);
 			    vm->index += 2;
@@ -733,16 +792,16 @@ void run_vm(VM* vm) {
 			}
 
 			case 80: {
-			    long int n_enc = stack_pop(&vm->stack);
-			    long int n = (n_enc - 1) / 2;
+			    long int n_encode = stack_pop(&vm->stack);
+			    long int n = (n_encode - 1) / 2;
 			    long int *tab = (long int *)vm->acc;
 			    vm->acc = tab[n];
 			    break;
 			}
 
 			case 81: {
-			    long int n_enc = stack_pop(&vm->stack);
-			    long int n = (n_enc - 1) / 2;
+			    long int n_encode = stack_pop(&vm->stack);
+			    long int n = (n_encode - 1) / 2;
 			    long int v = stack_pop(&vm->stack);
 			    long int *tab = (long int *)vm->acc;
 			    tab[n] = v;
@@ -772,8 +831,8 @@ void run_vm(VM* vm) {
 			case 128: {
 			    int n = vm->codes[vm->index + 1];
 			    long int *tab = (long int *)vm->acc;
-			    long int m_enc = tab[0];
-			    long int m = (m_enc - 1) / 2;
+			    long int m_encode = tab[0];
+			    long int m = (m_encode - 1) / 2;
 			    tab[0] = (m + n) * 2 + 1;
 			    vm->acc = 1;
 			    vm->index += 2;
@@ -837,4 +896,18 @@ void print_machine_state(VM vm) {
     for (int i = 0; i < vm.globals_size; i++) {
         printf("%d %ld\n", i, vm.globals[i]);
     }
+}
+
+/*
+@requires an existing and already initialized VM
+@assigns nothing
+@ensures frees the space allocated by VM's elements
+*/
+void free_vm(VM* vm) {
+    for (int i = 0; i < 256; i++) {
+        free((void *)vm->atoms[i]);
+    }
+    free(vm->atoms);
+
+    free_stack(&vm->stack);
 }

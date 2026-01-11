@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
 
     // free allocated spaces
     free_file_data(&prog);
+    free_vm(&vm);
 
     return 0;
 }
