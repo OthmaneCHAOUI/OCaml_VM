@@ -1,3 +1,4 @@
 docs/
 documentation/
-vm_ocaml
+bin/*
+obj/*
