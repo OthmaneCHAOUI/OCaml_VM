@@ -1,64 +1,199 @@
-# Machine Virtuelle d'OCaml
+# OCaml Virtual Machine
 
-# Contexte
+A C implementation of a virtual machine that executes OCaml bytecode in the SOBF format.
 
-Le but de ce projet est d'implémenter (une partie de) la machine virtuelle pour le bytecode d'OCaml.
+## Overview
 
-Le langage de programmation OCaml, est compilé vers du bytecode, un langage bas niveau qui est ensuite interprété dans une machine virtuelle pour exécuter le programme. L'avantage principal est qu'il suffit d'avoir une machine virtuelle pour exécuter le code, quelque soit l'architecture sur laquelle il a été compilé.
+The OCaml programming language compiles source code to bytecode, a low-level representation that is then interpreted by a virtual machine. This project implements a subset of that virtual machine in C, allowing the execution of compiled OCaml programs on any platform with a C11-compatible compiler.
 
-# Description de la machine virtuelle
+The VM reads `.sobf` binary files containing a code table (instructions and data) and a table of global values, then interprets the instructions sequentially. It manages an accumulator, a dynamically-sized value stack, and a table of global values. The implementation covers arithmetic instructions, stack manipulation, branching, memory block allocation, and basic I/O primitives.
 
-On considère deux types de données :
-* des codes, qui représentent les instructions du bytecode, et qui sont implémentés sur 32 bits ; on supposera qu'on peut utiliser le type int;
-* des valeurs, qui représentent des données (qui seront potentiellement des adresses en mémoire), et qui sont implémentés sur 64 bits ; on supposera qu'on peut utiliser le type long int.
+The project was developed as part of the **PRIM (Programmation impérative)** module at ENSIIE.
 
-Pour représenter des entiers comme des valeurs et pouvoir les distinguer, ils seront encodés par des entiers impairs : l'entier n sera représenté par la valeur 2n+1. De même, les booléens true et false seront représentés comme les entiers 1 et 0, et ils seront donc encodés respectivement par 3 et 1.
+## Features
 
-La machine virtuelle OCaml est constituée des parties suivantes :
+- Reading and validation of `.sobf` binary files
+- Sequential file parsing with on-the-fly structure validation
+- Implementation of a subset of OCaml bytecode instructions:
+  - Arithmetic operations: addition, subtraction, multiplication, division, modulo, negation
+  - Stack manipulation: push, pop, seek at arbitrary depth
+  - Branching instructions
+  - Memory block allocation
+  - Basic I/O primitives: read/write characters, flush, access to `stdin`/`stdout`/`stderr`
+- Dynamic value stack with automatic resizing
+- Proper memory management for VM structures
+- Command-line interface with optional debug mode
 
-* Un tableau de codes, qui contient les instructions du programme (mais aussi des données).
-* Un indice qui indique dans quelle case du tableau de code on se trouve. Initialement, cet indice vaudra 0.
-* Un accumulateur qui contient une valeur. Initialement, cette valeur vaudra 1.
-* Une pile de valeurs, qui sera initialement vide. On sera amené à consulter les valeurs située à une profondeur donnée quelconque dans la pile. L'élément au sommet sera considéré à la profondeur 0, celui en dessous à la profondeur 1, etc.
-* Un tableau de valeurs, qui contiendra des valeurs globales du programme.
+## Tech Stack
 
-Pour exécuter le programme, on regarde le code situé à l'indice courant. On effectue l'action associée à ce code (cf. infra), qui peut lire ou modifier l'indice, l'accumulateur, la pile et/ou les valeurs globales. Puis on passe à l'indice suivant (sauf indication contraire).
+| Component | Technology |
+|---|---|
+| Language | C (C11) |
+| Compiler | GCC |
+| Build | Make |
+| Version control | Git |
+| Environment | Debian (WSL, VirtualBox) |
 
-On peut regrouper les instructions en plusieurs ensembles. On n'implémentera qu'un sous-ensemble des instructions de la machine virtuelle, uniquement celles présentées ici. On pourra également se référer à [ce document][caml_instructions] qui date un peu mais reste pertinent pour décrire les instructions.
+## Architecture
 
-# Approche et méthodologie
+The VM operates on two data types:
 
-**processus de compilation d'OCaml** comprendre les etapes de compilation, et laquelle on est sense de faire (machine virtuelle) + comprendre les entrees et les sorties
+- **Codes**: 32-bit instructions (`int` in C)
+- **Values**: 64-bit data, potentially memory addresses (`long int` in C)
 
-**structure des fichiers**: isoler le main, les entetes, les implementations vient d'ameliorer la qualiter de code, et diminue la complexite de comprendre et detecter les differents fonctionalites du projet.
+Integers are encoded as odd numbers: `n` is represented by the value `2n + 1`. Booleans `false` and `true` are encoded as `1` and `3` respectively.
 
-**verifier structure des fichiers .sobf**: deux possibilites ont etait posees. La premier c'est de faire une fonction qui lit le fichier .sobf tout entiere et retourn les donnees du fichier comme une chaine de caractere et apres verifier si le fichier respecte la structure en accedant à la chaine apartir des indices. La deuxieme c'est de faire une fonction pour lire le fichier et verifier la structure au fur et a mesure en precisons le nombre des octects a lire. La conclusion etait de suivre la deuxieme methode car sera moins couteuse à cause que la premier emethode necessite la conversion des valeurs apartir la chaine de caractere...
+The VM is composed of:
 
-**sauvegarder les donnees du fichier .sobf**: j'avais penser en deux possibilites. Soit, pour chaque donnees des fichiers de test .sobf je fais une fonctions qui lit et retourn cette donnee. Soit je fait une structure de donnee et je cree une seul fonction qui lit et sauvegarde les donnees du fichier dans les elements de la structure. J'avais me concacre sur la deuxieme car je lit le fichier une seul fois, au contraire de la methode 1 qui dois lit le fichier pour chaque donnee.
+- A **code table** containing instructions and data
+- An **index** pointing to the currently-executed instruction (initially 0)
+- An **accumulator** holding a value (initially 1)
+- A **stack** of values (initially empty, top element at depth 0)
+- A **global values table**
 
-**`rb` vs `r`** rb pour binaire
+Execution proceeds by reading the code at the current index, performing the associated action (which may modify the index, accumulator, stack, or globals), then moving to the next instruction unless a branch occurs.
 
-**fonction is_sobf_file** additionel
+The codebase is split into four modules:
 
-**lire les tailles apartir les fichiers**
+| Module | Responsibility |
+|---|---|
+| `file_reader` | Reading and validating SOBF files |
+| `stack` | Value stack implementation |
+| `virtual_machine` | VM core and instruction execution |
+| `main` | User interface and entry point |
 
-**initialiser les variables dans case** => ajouter "{}"
+## Requirements
 
-# Outils utilisees
+- GCC (with C11 support) or any compatible C compiler
+- GNU Make
+- Linux environment (tested on Debian)
 
-* SublimeText
-* GCC
-* Git
-* Debian dans WSL
-* Debian dans VirtualBox
+## Installation
 
-# Resources
+Clone the repository:
 
-* **manpages** pour consulter les manuels des fonctions
-* **stackoverflow** pour chercher des solutions des problèmes trouvées
+```bash
+git clone git@github.com:OthmaneCHAOUI/OCaml_VM.git
+cd ocaml-vm
+```
+
+Build the project:
+
+```bash
+make
+```
+
+This produces the executable `bin/ocaml_vm`.
+
+## Usage
+
+Run a bytecode file:
+
+```bash
+./bin/ocaml_vm path/to/program.sobf
+```
+
+Enable the debug flag to print the final state of the machine:
+
+```bash
+./bin/ocaml_vm path/to/program.sobf --print-end-machine
+```
+
+Example:
+
+```bash
+$ ./bin/ocaml_vm test_units/unit0/fact.sobf
+```
+
+## Testing
+
+Test files are located in the `test_units/` directory:
+
+- `unit0/` — test cases provided by the instructor
+- `unit3/` — additional tests created during development
+
+Each `.sobf` file has a corresponding `.txt` file containing the expected output. To run a test, simply execute it through the VM:
+
+```bash
+./bin/ocaml_vm test_units/unit0/base.sobf
+```
+
+Tests cover arithmetic operations, stack manipulation, branching, memory blocks, and I/O primitives.
+
+## Project Structure
+
+```text
+.
+├── bin/                  # Compiled executable
+├── docs/                 # Documentation, report, and reference material
+├── obj/                  # Intermediate object files
+├── src/
+│   ├── header/           # Header files (.h)
+│   ├── implementation/   # Source files (.c)
+│   └── main/             # Entry point (main.c)
+├── test_units/
+│   ├── unit0/            # Provided tests
+│   └── unit3/            # Additional tests
+├── Makefile
+└── README.md
+```
+
+## Design Decisions
+
+### Sequential file reading
+
+Two approaches were considered for reading `.sobf` files:
+
+1. Load the entire file into a string and validate by index access.
+2. Read sequentially and validate on the fly.
+
+The second approach was chosen because it avoids intermediate string conversions, reduces memory usage, and detects format errors early.
+
+### Unified data structure
+
+Rather than reading each field (codes, globals, sizes) through separate functions that reopen the file, a single `file_data` structure is filled by one function in a single pass. This is more efficient and simplifies memory cleanup.
+
+### Binary mode
+
+Files are opened with `"rb"` instead of `"r"` to prevent text-mode end-of-line conversions that would corrupt binary data.
+
+### Stack implementation
+
+The stack is implemented as a dynamically-resizable array. It starts with a small capacity and grows automatically when needed, supporting programs with arbitrarily deep stacks.
+
+### Instruction dispatch
+
+Instructions are dispatched through a single `switch` statement on the opcode. Variables local to `case` blocks are wrapped in braces to create a proper scope — otherwise the compiler rejects jumps that skip initializations.
+
+### Arithmetic optimization
+
+Integer encoding is respected using optimized formulas. For example, `ADDINT` computes `2(n + m) + 1` directly from the encoded operands `2n + 1` and `2m + 1`, avoiding decode/re-encode overhead.
+
+## Limitations
+
+- **No garbage collector**: memory blocks allocated by the VM are never freed until program termination.
+- **Partial instruction set**: only a subset of OCaml bytecode instructions is implemented (those defined in the project specification).
+- **No exception handling**: OCaml exceptions are not supported.
+
+## Roadmap
+
+- [x] SOBF file parsing and validation
+- [x] Core instructions (arithmetic, stack, branches, blocks)
+- [x] Basic I/O primitives
+- [x] Dynamic stack
+- [ ] Simple garbage collector
+- [ ] Additional instructions (exception handling, closures)
+- [ ] Expanded primitive set
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
 
+## Contributing
 
+Contributions are welcome! Please open an issue or submit a pull request.
 
+## Contact
 
-[caml_instructions]: ./documentation/caml-instructions.pdf
+For questions or feedback, please open an issue on GitHub.
